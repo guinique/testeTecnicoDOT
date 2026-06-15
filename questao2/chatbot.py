@@ -9,8 +9,6 @@ from langchain_core.output_parsers import StrOutputParser
 # Carrega variáveis do .env
 load_dotenv()
 
-
-# carrega a chave da API do OpenAI
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 if not OPENAI_API_KEY:
@@ -20,9 +18,8 @@ if not OPENAI_API_KEY:
     )
 
 
-def run_chatbot():
+def create_chain():
 
-    # Inicializa o modelo explicitando a chave
     llm = ChatOpenAI(
         api_key=OPENAI_API_KEY,
         model="gpt-4o-mini",
@@ -41,12 +38,58 @@ def run_chatbot():
             - If appropriate, explain step by step.
             - Consider previous conversation context when answering.
             """
-        )
+        ),
+        ("placeholder", "{history}"),
+        ("human", "{question}")
     ])
 
     parser = StrOutputParser()
 
-    # histórico da conversa
+    # chain do langchain melhorada para manter o contexto da conversa e gerar respostas mais relevantes
+    chain = prompt | llm | parser
+
+    return chain
+
+
+def run_examples(chain):
+    examples = [
+        "Como criar uma lista em Python?",
+        "Qual a diferença entre lista e tupla?",
+        "O que é uma LLM e como ela funciona?",
+    ]
+
+    history = []
+
+    print("\n===== EXEMPLOS =====\n")
+
+    for question in examples:
+
+        print(f"You: {question}")
+
+        answer = chain.invoke({
+            "history": history,
+            "question": question
+        })
+
+        print(f"\nBot: {answer}\n")
+
+        history.append(
+            HumanMessage(content=question)
+        )
+
+        history.append(
+            AIMessage(content=answer)
+        )
+
+        print("-" * 80)
+
+    print("\n===== FIM DOS EXEMPLOS =====\n")
+
+
+def run_chatbot():
+
+    chain = create_chain()
+
     history = []
 
     print("Python Expert Chatbot Started!")
@@ -67,25 +110,13 @@ def run_chatbot():
 
         try:
 
-            # lista de mensagens:
-            messages = prompt.format_messages()
-
-            # adiciona todo o histórico
-            messages.extend(history)
-
-            # adiciona a nova pergunta
-            messages.append(
-                HumanMessage(content=question)
-            )
-
-            # chama o modelo
-            response = llm.invoke(messages)
-
-            answer = parser.invoke(response)
+            answer = chain.invoke({
+                "history": history,
+                "question": question
+            })
 
             print(f"\nBot: {answer}\n")
 
-            # salva na memória
             history.append(
                 HumanMessage(content=question)
             )
@@ -95,8 +126,18 @@ def run_chatbot():
             )
 
         except Exception as e:
-            print(f"Error communicating with OpenAI: {e}\n")
+
+            print(
+                f"Error communicating with OpenAI: {e}\n"
+            )
 
 
 if __name__ == "__main__":
+
+    chain = create_chain()
+
+    # demonstração solicitada no exercício
+    run_examples(chain)
+
+    # Chat interativo
     run_chatbot()
