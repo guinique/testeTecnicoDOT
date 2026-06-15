@@ -22,3 +22,7 @@ export LANGCHAIN_API_KEY="<your-api-key>"
 
 LANGSMITH_TRACING=true
 LANGSMITH_API_KEY=<your-api-key>
+
+# run
+
+python chatbot.py
