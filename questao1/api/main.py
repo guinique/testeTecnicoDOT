@@ -6,10 +6,12 @@ import models
 import schemas
 from database import engine, get_db
 
+# Cria as tabelas no banco de dados
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# endpoint para registrar um novo livro
 @app.post("/books/", response_model=schemas.BookResponse, status_code=201)
 def register_book(book: schemas.BookCreate, db: Session = Depends(get_db)):
     db_book = models.Book(**book.model_dump())
@@ -19,6 +21,7 @@ def register_book(book: schemas.BookCreate, db: Session = Depends(get_db)):
     
     return db_book
 
+# endpoint para buscar livros, com filtros opcionais
 @app.get("/books/", response_model=List[schemas.BookResponse])
 def search_books(
     title: Optional[str] = Query(None, description="Filtrar por parte do título"),

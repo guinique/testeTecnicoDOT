@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field
 from datetime import date
 from typing import Optional
 
+
+# modelos de dados para a API usando Pydantic
 class BookBase(BaseModel):
     title: str = Field(..., example="Fourth Wing")
     author: str = Field(..., example="Rebecca Yarros")
