@@ -4,6 +4,8 @@ import numpy as np
 import faiss
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
+
+# adicionei o langfuse para observabilidade, similar ao langsmith
 from langfuse import observe
 from pypdf import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
