@@ -20,12 +20,14 @@ if not OPENAI_API_KEY:
 
 def create_chain():
 
+    # setup do gpt
     llm = ChatOpenAI(
         api_key=OPENAI_API_KEY,
         model="gpt-4o-mini",
         temperature=0.5
     )
 
+    # prompt
     prompt = ChatPromptTemplate.from_messages([
         (
             "system",
@@ -50,7 +52,7 @@ def create_chain():
 
     return chain
 
-
+# função para rodar exemplos pré-definidos, demonstrando a capacidade do chatbot de manter contexto e fornecer respostas relevantes
 def run_examples(chain):
     examples = [
         "Como criar uma lista em Python?",
@@ -95,6 +97,7 @@ def run_chatbot():
     print("Python Expert Chatbot Started!")
     print("Type 'exit' to quit.\n")
 
+    # loop de interação com chatbot
     while True:
 
         question = input("You: ")
@@ -109,7 +112,7 @@ def run_chatbot():
         print("Thinking...")
 
         try:
-
+            # a resposta do chatbot é gerada considerando o histórico da conversa para manter o contexto
             answer = chain.invoke({
                 "history": history,
                 "question": question
@@ -117,6 +120,7 @@ def run_chatbot():
 
             print(f"\nBot: {answer}\n")
 
+            # atualiza o histórico da conversa com a nova pergunta e resposta, permitindo que o chatbot se lembre do contexto em interações futuras
             history.append(
                 HumanMessage(content=question)
             )
